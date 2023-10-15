@@ -47,7 +47,7 @@ class PostTest {
 
         val service = WallService
         val newPost = service.add(Post(ownerId = 11245711, fromId = 23333456, text = "Test post1"))
-        assertTrue(newPost.id > 0)
+        assertTrue(newPost.id < 0)
     }
 
 }
