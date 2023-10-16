@@ -170,6 +170,7 @@ data class Post(
 
 object WallService { //Singletone
 
+    private  var pastPostId: Long = 0
     private var posts = emptyArray<Post>() //создаем массив для хранения постов
     fun add(post: Post): Post {
         val postWId = post.copy(generatePostId())
@@ -181,9 +182,8 @@ object WallService { //Singletone
     }
 
     private fun generatePostId(): Long { //Генерируем ID поста: дата + случайное число
-
-        return System.currentTimeMillis() + (0..50).random().toLong()
-
+        pastPostId = if (pastPostId < 1) System.currentTimeMillis() else pastPostId + 1
+        return pastPostId
     }
 
     fun update(post: Post): Boolean { //Обновление записи
