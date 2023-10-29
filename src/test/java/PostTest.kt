@@ -21,11 +21,6 @@ class PostTest {
         assertTrue(service.update(update))
     }
 
-    @Before
-    fun clearBeforeTestUpdate1() {
-        WallService.clear()
-    }
-
     @Test
     fun updateNoExisting() {
 
@@ -35,11 +30,6 @@ class PostTest {
         val post = Post(12132133434, ownerId = 57243, fromId = 123456, text = "Test post3")
         val update = post.copy(text = "Change text of post1")
         assertFalse(service.update(update))
-    }
-
-    @Before
-    fun clearBeforeTestAdd() {
-        WallService.clear()
     }
 
     @Test
