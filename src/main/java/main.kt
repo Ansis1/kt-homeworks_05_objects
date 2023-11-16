@@ -1,7 +1,5 @@
 package ru.neotology
 
-import java.util.SplittableRandom
-
 /**
  * Пост
  *
@@ -161,19 +159,24 @@ interface Sizes {
 
 }
 
-data class Image(
+class ImageAttachment(
     override val type: String = "", //не исп.
     override val id: Long,
     override val date: Long,
-    val albumId: Long,
-    val ownerId: Long,
-    val userId: Long,
-    val text: String = "",
-    val sizes: Array<ImageSize>,
-    val width: Long,
-    val height: Long,
-    val postId: Long = 0 //дополнительно для медиавложений на стене.
+    val image: Image
 ) : Attachments {
+    data class Image(
+        val albumId: Long,
+        val ownerId: Long,
+        val date: Long,
+        val userId: Long,
+        val text: String = "",
+        val sizes: Array<ImageSize>,
+        val width: Long,
+        val height: Long,
+        val postId: Long = 0 //дополнительно для медиавложений на стене.
+    ) {
+    }
 
     data class ImageSize(
         override val type: String,
@@ -181,165 +184,179 @@ data class Image(
         override val width: Long,
         override val height: Long
     ) : Sizes
-
 }
 
-data class Audio(
+data class AudioAttachment(
     override val type: String,
     override val id: Long,
     override val date: Long,
-    val artist: String,
-    val title: String,
-    val duration: Long,
-    val url: String,
-    val lyricsId: Long = 0,
-    val ownerId: Long,
-    val albumId: Long = 0,
-    val genreId: Int,
-    val noSearch: Boolean,
-    val isHQ: Boolean
-
+    val audio: Audio
 ) : Attachments {
-    fun getGenreById(id: Int): String {
 
-        return when (id) {
+    data class Audio(
+        val artist: String,
+        val title: String,
+        val duration: Long,
+        val url: String,
+        val lyricsId: Long = 0,
+        val ownerId: Long,
+        val albumId: Long = 0,
+        val genreId: Int,
+        val noSearch: Boolean,
+        val isHQ: Boolean
 
-            1 -> "Rock"
-            2 -> "Pop"
-            3 -> "Rap & Hip -Hop"
-            4 -> "Easy Listening"
-            5 -> "House & Dance"
-            6 -> "Instrumental"
-            7 -> "Metal"
-            21 -> "Alternative"
-            8 -> "Dubstep"
-            1001 -> "Jazz & Blues"
-            10 -> "Drum & Bass"
-            11 -> "Trance"
-            12 -> "Chanson"
-            13 -> "Ethnic"
-            14 -> "Acoustic & Vocal"
-            15 -> "Reggae"
-            16 -> "Classical"
-            17 -> "Indie Pop"
-            19 -> "Speech"
-            22 -> "Electropop & Disco"
-            else -> {
-                "Other"
+    ) {
+        fun getGenreById(id: Int): String {
+
+            return when (id) {
+
+                1 -> "Rock"
+                2 -> "Pop"
+                3 -> "Rap & Hip -Hop"
+                4 -> "Easy Listening"
+                5 -> "House & Dance"
+                6 -> "Instrumental"
+                7 -> "Metal"
+                21 -> "Alternative"
+                8 -> "Dubstep"
+                1001 -> "Jazz & Blues"
+                10 -> "Drum & Bass"
+                11 -> "Trance"
+                12 -> "Chanson"
+                13 -> "Ethnic"
+                14 -> "Acoustic & Vocal"
+                15 -> "Reggae"
+                16 -> "Classical"
+                17 -> "Indie Pop"
+                19 -> "Speech"
+                22 -> "Electropop & Disco"
+                else -> {
+                    "Other"
+                }
             }
         }
-
     }
 
 }
 
-data class Video(
+data class VideoAttachment(
     override val type: String, // video, music_video, movie
     override val id: Long,
     override val date: Long,
-    val ownerId: Long,
-    val title: String,
-    val description: String,
-    val duration: Long = 0,
-    val image: Image,
-    val firstFrame: FirstFrame,
-    val addingDate: Long,
-    val views: Long = 0,
-    val localViews: Long = 0,
-    val comments: Int,
-    val player: String,
-    val platform: String,
-    val canAdd: Boolean,
-    val isPrivate: Boolean,
-    val accessKey: String,
-    val processing: Boolean,
-    val isFavorite: Boolean,
-    val canComment: Boolean,
-    val canEdit: Boolean,
-    val canLike: Boolean,
-    val canRepost: Boolean,
-    val canSubscribe: Boolean,
-    val canAddToFaves: Boolean,
-    val canAttachLink: Boolean,
-    val width: Long,
-    val height: Long,
-    val userId: Long,
-    val converting: Boolean,
-    val added: Boolean,
-    val isSubscribed: Boolean,
-    val repeat: Int = 1,
-    val balance: Long,
-    val liveStatus: String, //waiting, started, finished, failed, upcoming.
-    val live: Boolean = true,
-    val upComing: Boolean = true,
-    val spectators: Long,
-    val likes: Post.Likes? = null,
-    val reposts: Post.Reposts? = null,
+    val video: Video,
+) : Attachments {
 
-    ) : Attachments {
+    data class Video(
 
-    data class Image(
-
-        val height: Long,
-        val url: String,
+        val ownerId: Long,
+        val title: String,
+        val description: String,
+        val duration: Long = 0,
+        val image: Image,
+        val firstFrame: FirstFrame,
+        val addingDate: Long,
+        val views: Long = 0,
+        val localViews: Long = 0,
+        val comments: Int,
+        val player: String,
+        val platform: String,
+        val canAdd: Boolean,
+        val isPrivate: Boolean,
+        val accessKey: String,
+        val processing: Boolean,
+        val isFavorite: Boolean,
+        val canComment: Boolean,
+        val canEdit: Boolean,
+        val canLike: Boolean,
+        val canRepost: Boolean,
+        val canSubscribe: Boolean,
+        val canAddToFaves: Boolean,
+        val canAttachLink: Boolean,
         val width: Long,
-        val withPadding: Boolean,
-    ) {}
-
-    data class FirstFrame(
-
         val height: Long,
-        val url: String,
-        val width: Long
-    ) {}
+        val userId: Long,
+        val converting: Boolean,
+        val added: Boolean,
+        val isSubscribed: Boolean,
+        val repeat: Int = 1,
+        val balance: Long,
+        val liveStatus: String, //waiting, started, finished, failed, upcoming.
+        val live: Boolean = true,
+        val upComing: Boolean = true,
+        val spectators: Long,
+        val likes: Post.Likes? = null,
+        val reposts: Post.Reposts? = null,
+    ) {
+        data class Image(
 
+            val height: Long,
+            val url: String,
+            val width: Long,
+            val withPadding: Boolean,
+        ) {}
+
+        data class FirstFrame(
+
+            val height: Long,
+            val url: String,
+            val width: Long
+        ) {}
+
+    }
 }
 
-data class File(
+data class FileAttachment(
     override var type: String = "",
     override val id: Long,
     override val date: Long,
-    var typeInternal: Int = 0, //доп. поле т. к. у нас наследование от интерфейса String.
-    val ownerId: Long,
-    val title: String,
-    val size: Long,
-    val ext: String,
-    val url: String,
-    val preview: Preview? = null,
+    val file: File,
 ) : Attachments {
-    data class Preview(
-        val photo: Photo? = null,
-        val graffiti: Graffiti? = null,
-        val audioMessage: AudioMessage? = null,
-    ) {
-        data class Photo(
-            val sizes: Array<Sizes>
+
+    data class File(
+        var typeInternal: Int = 0, //доп. поле т. к. у нас наследование от интерфейса String.
+        val ownerId: Long,
+        val title: String,
+        val size: Long,
+        val ext: String,
+        val url: String,
+        val preview: Preview? = null,
+
         ) {
-            data class Sizes(
-                override val type: String,
-                override val url: String,
-                override val width: Long,
-                override val height: Long
-            ) : ru.neotology.Sizes
+
+        data class Preview(
+            val photo: Photo? = null,
+            val graffiti: Graffiti? = null,
+            val audioMessage: AudioMessage? = null,
+        ) {
+            data class Photo(
+                val sizes: Array<Sizes>
+            ) {
+                data class Sizes(
+                    override val type: String,
+                    override val url: String,
+                    override val width: Long,
+                    override val height: Long
+                ) : ru.neotology.Sizes
+            }
+
+            data class Graffiti(
+                val src: String,
+                val width: Long,
+                val height: Long,
+            )
+
+            data class AudioMessage(
+                val duration: Long,
+                val waveForm: Array<Int>,
+                val linkOgg: String,
+                val linkMp3: String,
+            )
         }
-
-        data class Graffiti(
-            val src: String,
-            val width: Long,
-            val height: Long,
-        )
-
-        data class AudioMessage(
-            val duration: Long,
-            val waveForm: Array<Int>,
-            val linkOgg: String,
-            val linkMp3: String,
-        )
     }
 
     fun setTypeById(id: Int) {
 
-        this.typeInternal = id
+        file.typeInternal = id
         this.type = when (id) {
 
             1 -> "текстовые документы"
@@ -359,11 +376,11 @@ data class File(
 
 data class AttachmentsPost(
     val type: String,
-    val image: Image? = null,
+    val image: ImageAttachment? = null,
     val postedPhoto: PostedPhoto? = null,
-    val video: Video? = null,
-    val audio: Audio? = null,
-    val file: File? = null, //Doc
+    val video: VideoAttachment? = null,
+    val audio: AudioAttachment? = null,
+    val file: FileAttachment.File? = null, //Doc
     val pool: Poll? = null,
     val page: WikiPage? = null,
     val album: Album? = null,
@@ -425,7 +442,7 @@ data class Poll(
     val canReport: Boolean = false,
     val canShare: Boolean = false,
     val authorId: Long,
-    val photo: Image? = null,
+    val photo: ImageAttachment? = null,
     val background: Background,
     val frends: Array<Long>? = null, // Идентификаторы 3 друзей, которые проголосовали в опросе.
 ) {
@@ -445,7 +462,7 @@ data class Poll(
         val color: String,
         val width: Long, //для type = tile
         val height: Long, // для type = tile
-        val images: Image, // для type = tile
+        val images: ImageAttachment, // для type = tile
         val points: Points, // для type = gradient
 
     )
@@ -479,7 +496,7 @@ data class WikiPage(
 
 data class Album(
     val id: Long,
-    val thumb: Image,
+    val thumb: ImageAttachment,
     val ownerId: Long,
     val title: String,
     val description: String = "",
@@ -515,7 +532,7 @@ data class Market(
     val sku: String,
     val rejectInfo: RejectInfo? = null,
     val extended: Int = 0, // extended = 1 - опциональные поля.
-    val photos: Array<Image>? = null,
+    val photos: Array<ImageAttachment>? = null,
     val canComment: Boolean = false,
     val canRepost: Boolean = false,
     val likes: Likes? = null,
@@ -531,9 +548,7 @@ data class Market(
             val id: Long,
             val name: String,
         ) {
-
         }
-
     }
 
     data class Dimensions(
@@ -578,7 +593,7 @@ data class MarketAlbum(
     val title: String,
     val isMain: Boolean = false,
     val isHidden: Boolean = false,
-    val photo: Image,
+    val photo: ImageAttachment,
     val count: Int,
 
     ) {} //Подборка товаров
@@ -649,49 +664,52 @@ fun main() {
 
     //Attachments
     val attachments = Array<Attachments>(2) {
-        Image(
+        ImageAttachment(
             id = 223232323,
-            albumId = 43534534534,
-            ownerId = 5454545544554,
-            userId = 435345345345,
             date = 123112312321,
-            sizes = Array(1)
-            {
-                Image.ImageSize(
-                    "m",
-                    "https://pp.vk.me/c633825/v633825034/736e/SKfi-9SeR0I.jpg",
-                    130,
-                    87
-                )
-            },
-            width = 1600,
-            height = 800
+            image = ImageAttachment.Image(
+                width = 1600,
+                height = 800,
+                sizes = Array(1) {
+                    ImageAttachment.ImageSize(
+                        "m",
+                        "https://pp.vk.me/c633825/v633825034/736e/SKfi-9SeR0I.jpg",
+                        130,
+                        87
+                    )
+                },
+                albumId = 43534534534,
+                ownerId = 5454545544554,
+                date = 123112312321,
+                userId = 435345345345
+            )
         )
     }
     attachments.set(
         1,
-        Image(
+        ImageAttachment(
             id = 223232324,
-            albumId = 435134534534,
-            ownerId = 5454545544554,
-            userId = 435345345345,
             date = 123112312321,
-            sizes = Array(1) {
-                Image.ImageSize(
-                    "m",
-                    "https://pp.vk.me/c633825/v633825034/73e4565e/SKfi-9SeR0I.jpg",
-                    131,
-                    88
-                )
-            },
-            width = 1600,
-            height = 800
+            image = ImageAttachment.Image(
+                date = 123112312321,
+                albumId = 435134534534,
+                ownerId = 5454545544554,
+                userId = 435345345345,
+                sizes = Array(1) {
+                    ImageAttachment.ImageSize(
+                        "m",
+                        "https://pp.vk.me/c633825/v633825034/73e4565e/SKfi-9SeR0I.jpg",
+                        131,
+                        88
+                    )
+                },
+                width = 1600,
+                height = 800
+            )
         )
     )
 
     var post = service.add(Post(ownerId = 112457, fromId = 123456, text = "Test post", attachments = attachments))
-    println("Original post: $post")
     post = post.copy(text = "Testovyi post")
     service.update(post)
-    println("Change post: $post")
 }
