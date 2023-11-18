@@ -142,6 +142,29 @@ data class Post(
 
 }
 
+data class Comment(
+    val id: Long,
+    val fromId: Long,
+    val date: Long,
+    val text: String,
+    val donut: Donut,
+    val replyToUser: Long? = null,
+    val replyToComment: Long? = null,
+    val attachments: Attachments? = null,
+    val parentsStack: Array<Long> = emptyArray(),
+    val thread: ThreadComm? = null,
+) {
+    data class ThreadComm(
+        val count: Long,
+        val items: Array<Comment>? = null,
+        val canPost: Boolean,
+        val showReplyButton: Boolean,
+        val groupsCanPost: Boolean,
+
+        )
+
+}
+
 interface Attachments {
 
     val type: String
@@ -629,6 +652,8 @@ object WallService { //Singletone
 
     private var pastPostId: Long = 0
     private var posts = emptyArray<Post>() //создаем массив для хранения постов
+    private var comments = emptyArray<Comment>() //создаем массив для хранения постов
+
     fun add(post: Post): Post {
         val postWId = post.copy(generatePostId())
         println("postWId: ${postWId.id}")
@@ -655,6 +680,20 @@ object WallService { //Singletone
 
     fun clear() {
         posts = emptyArray()
+    }
+
+    fun createComment(postId: Long, comment: Comment): Comment {
+
+
+        for (postF in posts) {
+            if (postF.id == postId) {
+
+                comments += comment.copy();
+                return comment
+            }
+        }
+        throw PostNotFoundException(postId)
+
     }
 
 }
