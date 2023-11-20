@@ -1,8 +1,10 @@
 package ru.neotology
 
+import java.lang.Exception
+import java.lang.StringBuilder
+
 /**
  * Пост
- *
  *
  * @property id Идентификатор записи.
  * @property ownerId ID владельца стены, на которой размещена запись
@@ -27,6 +29,7 @@ package ru.neotology
  * @property likes Информация о лайках к записи.
  * @property comments Информация о комментариях к записи
  * @constructor Creates a new post.
+ *
  */
 data class Post(
     val id: Long = 0,
@@ -162,7 +165,6 @@ data class Comment(
         val groupsCanPost: Boolean,
 
         )
-
 }
 
 interface Attachments {
@@ -610,6 +612,18 @@ data class Market(
 
 } //Товар
 
+/**
+ * Market album
+ *
+ * @property id
+ * @property ownerId
+ * @property title
+ * @property isMain
+ * @property isHidden
+ * @property photo
+ * @property count
+ * @constructor Create empty Market album
+ */
 data class MarketAlbum(
     val id: Long,
     val ownerId: Long,
@@ -621,14 +635,24 @@ data class MarketAlbum(
 
     ) {} //Подборка товаров
 
-data class Donut( //TODO Информация о записи VK Donut
+/**
+ * Donut
+ *
+ * @property isDonut запись доступна только платным подписчикам VK Donut
+ * @property paidDuration время, в течение которого запись будет доступна только платным подписчикам VK Donut
+ * @property canPublishFreeCopy можно ли открыть запись для всех пользователей, а не только подписчиков VK Donut
+ * @property editMode информация о том, какие значения VK Donut можно изменить в записи - all or duration
+ * @constructor Create Donut
+ */
+data class Donut( // Информация о записи VK Donut
 
-    val isDonut: Boolean = false, /* запись доступна только платным подписчикам VK Donut */
-    val paidDuration: Long = 0, /* время, в течение которого запись будет доступна только платным подписчикам VK Donut.*/
-    val canPublishFreeCopy: Boolean = false, /* можно ли открыть запись для всех пользователей, а не только подписчиков VK Donut*/
-    val editMode: String = "" /* информация о том, какие значения VK Donut можно изменить в записи - all or duration*/
+    val isDonut: Boolean = false,
+    val paidDuration: Long = 0,
+    val canPublishFreeCopy: Boolean = false,
+    val editMode: String = ""
 
 ) {
+
     class Placeholder { //TODO Заглушка для пользователей, которые не оформили подписку VK Donut. Отображается вместо содержимого записи.
 
 
@@ -648,12 +672,81 @@ data class Button(
 
 }
 
+/**
+ * Заметка
+ *
+ * @property nId Идентификатор заметки.
+ * @property title Заголовок заметки.
+ * @property text Текст заметки.
+ * @property ownerId ID автора заметки
+ * @property privacy Уровень доступа к заметке: 0-все, 1-друзья, 2-друзья и друзья друзей, 3-только пользователь
+ * @property commentPrivacy Уровень доступа к комментированию заметки: 0-все, 1-друзья, 2-друзья и друзья друзей,
+ * 3-только пользователь
+ * @property privacyView Настройки приватности просмотра заметки:
+ * all-всем пользователям;
+ * friends-друзьям текущего пользователя;
+ * friends_of_friends / friends_of_friends_only-Доступно друзьям и друзьям друзей /
+ * друзьям друзей текущего пользователя (friends_of_friends_only появился с версии 5.32);
+ * nobody / only_me-Недоступно никому / доступно только мне;
+ * list{list_id}-Доступно друзьям текущего пользователя из списка с идентификатором {list_id};
+ * {user_id}-Доступно другу с идентификатором {user_id};
+ * list{list_id}-Недоступно друзьям текущего пользователя из списка с идентификатором {list_id};
+ * {user_id}-Недоступно другу с идентификатором {user_id}.
+ * @property privacyComment Настройки приватности комментирования заметки:
+ * all – всем пользователям;
+ * friends – друзьям текущего пользователя;
+ * friends_of_friends / friends_of_friends_only – Доступно друзьям и друзьям друзей /
+ * друзьям друзей текущего пользователя (friends_of_friends_only появился с версии 5.32);
+ * nobody / only_me – Недоступно никому / доступно только мне;
+ * list{list_id} – Доступно друзьям текущего пользователя из списка с идентификатором {list_id};
+ * {user_id} – Доступно другу с идентификатором {user_id};
+ * list{list_id} – Недоступно друзьям текущего пользователя из списка с идентификатором {list_id};
+ * {user_id} – Недоступно другу с идентификатором {user_id}.
+ * @property isDelete была ли удалена заметка.
+ * @property comments карта с комментариями к заметке (ID > объект комментария).
+ * @constructor Creates a new note.
+ *
+ */
+data class Note(
+
+    val nId: Long = 0,
+    var ownerId: Long,
+    var title: String,
+    var text: String,
+    val date: Long,
+    var totalComments: Int = 0,
+    var readComments: Int = 0,
+    var viewUrl: String = "",
+    var privacyView: String = "friends",
+    var canComment: Boolean = true,
+    var privacy: Int = 1,
+    var textWiki: String = "",
+    var commentPrivacy: Int = 1,
+    var privacyComment: String = "friends",
+    var isDelete: Boolean = false,
+    var comments: MutableSet<Long> = mutableSetOf(), //ID комментариев к заметке
+) {
+
+
+    data class Comment(
+        val id: Long,
+        val ownerId: Long,
+        val noteID: Long,
+        val noteOwnerId: Long,
+        val date: Long,
+        var message: String,
+        var replyTo: Long = 0,
+        var isDelete: Boolean = false, //пометка удаления комментария
+    )
+}
+
 object WallService { //Singletone
 
     private var pastPostId: Long = 0
     private var posts = emptyArray<Post>() //создаем массив для хранения постов
-    private var comments = emptyArray<Comment>() //создаем массив для хранения постов
+    private var comments = emptyArray<Comment>() //создаем массив для хранения комментариев к постам
 
+    /** Post's functions */
     fun add(post: Post): Post {
         val postWId = post.copy(generatePostId())
         println("postWId: ${postWId.id}")
@@ -682,6 +775,7 @@ object WallService { //Singletone
         posts = emptyArray()
     }
 
+    /** Post's comments functions */
     fun createComment(postId: Long, comment: Comment): Comment {
 
 
@@ -689,7 +783,7 @@ object WallService { //Singletone
             if (postF.id == postId) {
 
                 comments += comment.copy();
-                return comment
+                return comments.last()
             }
         }
         throw PostNotFoundException(postId)
@@ -698,8 +792,325 @@ object WallService { //Singletone
 
 }
 
+object NoteService { //Singletone
+
+    private var notes: MutableMap<Long, Note> = mutableMapOf() // мапа для хранения заметок
+    private var comments: MutableMap<Long, Note.Comment> = mutableMapOf() // мапа для хранения комментариев
+
+    /**
+     * Generate ID - генерация УИД для заметок/комментов
+     *
+     * @param isNote генерировать ID для заметки
+     * @return уникальный идентификатор
+     */
+    private fun generateID(isNote: Boolean = false): Long {
+        return if (isNote) {
+            System.currentTimeMillis() + notes.size
+        } else {
+            System.currentTimeMillis() + comments.size
+        }
+    }
+
+    /**
+     * Add - добавление новой заметки
+     *
+     * @param ownerId
+     * @param title
+     * @param text
+     * @param privacy
+     * @param commentPrivacy
+     * @param privacyView
+     * @param privacyComment
+     * @return ID добавленной заметки.
+     */
+    fun add(
+        ownerId: Long,
+        title: String,
+        text: String,
+        privacy: Int = 1,
+        commentPrivacy: Int = 1,
+        privacyView: String = "friends",
+        privacyComment: String = "friends",
+    ): Long {
+        val newNote = Note(
+            generateID(true),
+            ownerId,
+            title,
+            text,
+            System.currentTimeMillis(),
+            privacy = privacy,
+            commentPrivacy = commentPrivacy,
+            privacyView = privacyView,
+            privacyComment = privacyComment,
+        )
+
+        notes.put(newNote.nId, newNote)
+        return newNote.nId
+    }
+
+    /**
+     * Delete - удаление заметки
+     *
+     * @param noteId
+     * @return 1 - успешно удалена, -1 если заметка не найдена.
+     */
+    fun delete(noteId: Long): Int {
+        val fNote: Note
+        return try {
+            fNote = notes.getValue(noteId)
+            fNote.isDelete = true
+            notes.replace(fNote.nId, fNote.copy())
+            1
+        } catch (e: NoSuchElementException) {
+            -1
+        }
+
+    }
+
+    /**
+     * Edit - редактирование заметки
+     *
+     * @param noteId
+     * @param title
+     * @param text
+     * @param privacy
+     * @param commentPrivacy
+     * @param privacyView
+     * @param privacyComment
+     * @return 1 - успешно изменена, -1 не передан ни один параметр для изменения, -2 если заметка не найдена.
+     */
+    fun edit(
+        noteId: Long, title: String, text: String, privacy: Int, commentPrivacy: Int, privacyView: String,
+        privacyComment: String
+    ): Int {
+
+        val fNote: Note
+        var noteChanged = false
+        return try {
+            fNote = notes.getValue(noteId)
+            if (title.isNotEmpty()) {
+                fNote.title = title
+                noteChanged = true
+            }
+            if (text.isNotEmpty()) {
+                fNote.text = text
+                noteChanged = true
+            }
+            if (privacy >= 0) {
+                fNote.privacy = privacy
+                noteChanged = true
+            }
+            if (commentPrivacy >= 0) {
+                fNote.commentPrivacy = commentPrivacy
+                noteChanged = true
+            }
+            if (privacyView.isNotEmpty()) {
+                fNote.privacyView = privacyView
+                noteChanged = true
+            }
+            if (privacyComment.isNotEmpty()) {
+                fNote.privacyComment = privacyComment
+                noteChanged = true
+            }
+            if (noteChanged) {
+                notes.replace(fNote.nId, fNote.copy())
+                1
+            } else {
+                throw IllegalArgumentException()
+            }
+        } catch (e: NoSuchElementException) {
+            -2
+        } catch (e: IllegalArgumentException) {
+            -1
+        }
+
+    }
+
+    /**
+     * Get получение списка заметок из массива ID
+     *
+     * @param noteIds
+     * @return Set с заметками или пустой Set, если заметок нет.
+     */
+    fun get(noteIds: Array<Long>): Set<Note> { // offset, sort,  count, userId: Long = -1
+
+        val findNotes: MutableSet<Note> = mutableSetOf()
+
+        for (noteId in noteIds) {
+            try {
+                val fNote: Note = notes.getValue(noteId)
+                if (!fNote.isDelete) {
+                    findNotes.add(fNote)
+                } else {
+                    throw NoSuchElementException()
+                }
+            } catch (e: NoSuchElementException) {
+                println("Заметка с ID $noteId не найдена.")
+            }
+        }
+
+        return findNotes
+    }
+
+    /**
+     * Get by id - получение заметки по ID
+     *
+     * @param noteId
+     * @return объект Note или null
+     */
+    fun getById(noteId: Long): Note? { // ownerId: , needWiki: T2
+        return try {
+            val fNote: Note = notes.getValue(noteId)
+            if (fNote.isDelete) { //Удаленные не возвращаем
+                throw NoSuchElementException()
+            } else {
+                fNote
+            }
+        } catch (e: NoSuchElementException) {
+            println("Заметка с ID $noteId не найдена.")
+            null
+        }
+
+    }
+
+    /**
+     * Create comment - добавление коммента к заметке
+     *
+     * @param noteId
+     * @param ownerId
+     * @param message
+     * @return ID комментария или -1 (заметка не найдена)
+     */
+
+    fun createComment(noteId: Long, ownerId: Long, message: String): Long { // guid reply_to
+        val note: Note
+
+        return try {
+            note = notes.getValue(noteId)
+            val nComent: Note.Comment = Note.Comment(
+                generateID(),
+                ownerId,
+                noteId,
+                note.ownerId,
+                System.currentTimeMillis(),
+                message,
+            )
+            comments.put(nComent.id, nComent.copy())
+            note.comments.add(nComent.id)
+            notes.replace(note.nId, note.copy())
+            nComent.id
+        } catch (e: NoSuchElementException) {
+            println("Заметка с ID $noteId не найдена. Добавление комментария невозможно.")
+            -1
+        }
+    }
+
+    /**
+     * Delete comment удаление комментария у заметки
+     *
+     * @param commentId
+     * @return 1 (успешно удалён), -1 (комментарий не найден)
+     */
+    fun deleteComment(commentId: Long): Int { // ownerId: Long
+        val fComment: Note.Comment
+        return try {
+            fComment = comments.getValue(commentId)
+            fComment.isDelete = true
+            comments.replace(fComment.id, fComment.copy())
+            1
+        } catch (e: NoSuchElementException) {
+            -1
+        }
+
+    }
+
+    /**
+     * Edit comment - редактирование комментария
+     *
+     * @param commentId
+     * @param message
+     * @return 1 (успешно отредактирован), -1 (пустое сообщение/мин длина < 2),
+     * -2 (комментарий не найден)
+     */
+    fun editComment(commentId: Long, message: String): Int { //ownerId: Long = 0
+
+        val fComment: Note.Comment
+        return try {
+            if (message.isEmpty() || message.length < 2) {
+                throw IllegalArgumentException()
+            }
+            fComment = comments.getValue(commentId)
+            if (fComment.isDelete) {
+                throw NoSuchElementException()
+            }
+            fComment.message = message
+            comments.replace(fComment.id, fComment.copy())
+            1
+
+        } catch (e: NoSuchElementException) {
+            -2
+        } catch (e: IllegalArgumentException) {
+            -1
+        }
+    }
+
+    /**
+     * Get comments - получение всех комментариев заметки (без удаленных)
+     *
+     * @param noteId
+     * @return Set с комментариями или null (заметка не найдена)
+     */
+    fun getComments(noteId: Long): Set<Note.Comment>? { // sort, offset, count ownerId: Long = 0
+        val note: Note
+        val findComments: MutableSet<Note.Comment> = mutableSetOf()
+        try {
+            note = notes.getValue(noteId)
+            if (note.isDelete) {
+                throw NoSuchElementException()
+            }
+        } catch (e: NoSuchElementException) {
+            println("Заметка с ID $noteId не найдена.")
+            return null
+        }
+
+        for (commentId in note.comments) {
+            try {
+                val fComment: Note.Comment = comments.getValue(commentId)
+                if (!fComment.isDelete) {
+                    findComments.add(fComment.copy())
+                } else {
+                    throw NoSuchElementException()
+                }
+            } catch (_: NoSuchElementException) {
+                continue
+            }
+        }
+
+        return findComments
+    }
+
+    /**
+     * Restore comment - восстановление удаленного комментария
+     *
+     * @param commentId
+     * @return 1 (успешно восстановлен), -1 (не найден)
+     */
+    fun restoreComment(commentId: Long): Int { //ownerId: Long = 0
+        val fComment: Note.Comment
+        return try {
+            fComment = comments.getValue(commentId)
+            fComment.isDelete = false
+            comments.replace(fComment.id, fComment.copy())
+            1
+        } catch (e: NoSuchElementException) {
+            -1
+        }
+    }
+}
+
 fun main() {
-    val service = WallService
+    val servicePost = WallService
+    val serviceNote = NoteService
 
     //Attachments
     val attachments = Array<Attachments>(2) {
@@ -748,7 +1159,104 @@ fun main() {
         )
     )
 
-    var post = service.add(Post(ownerId = 112457, fromId = 123456, text = "Test post", attachments = attachments))
+    var post = servicePost.add(Post(ownerId = 112457, fromId = 123456, text = "Test post", attachments = attachments))
     post = post.copy(text = "Testovyi post")
-    service.update(post)
+    servicePost.update(post)
+
+    /*
+        val ownerId = 23432432423423432
+
+        val newNoteId0 = serviceNote.add(ownerId, "test title0", "txt0") //создаем заметку
+        val newNoteId = serviceNote.add(ownerId, "test title1", "txt") //создаем заметку
+        println("new note $newNoteId")
+
+        var newComment = serviceNote.createComment(newNoteId, ownerId, "first comment") // создаем коммент к заметке
+        println("new Comment1 $newComment")
+        newComment = serviceNote.createComment(newNoteId, ownerId, "second comment") // создаем ещё коммент к заметке
+        println("new Comment2 $newComment")
+
+        val newComment1 =
+            serviceNote.createComment(111321322323, ownerId, "second 1 comment") // создаем коммент к заметке c несущ ID
+        println("new Comment for 111321322323 note =  $newComment1")
+
+        //Вывод заметок по ID <array>
+        val notesIds: Array<Long> = arrayOf(newNoteId0, newNoteId)
+        var notes = serviceNote.get(notesIds) // получаем комменты к заметке
+        if (notes.isNotEmpty()) {
+            val fComments = StringBuilder()
+            fComments.append("Найденные заметке: \n")
+            for (note in notes) {
+                fComments.append("${note.title}: ${note.text}\n")
+            }
+
+            println(fComments.toString())
+        }
+        //Вывод заметок по ID с пустым <array>
+        notes = serviceNote.get(emptyArray())
+        println("find notes with emptyArray = $notes")
+
+        //Вывод заметки по ID
+        var note: Note? = serviceNote.getById(newNoteId0)
+        println("find note by ID  = $note")
+        //Вывод заметки по ID с несущ ID
+        note = serviceNote.getById(455454545454)
+        println("find note by fake ID  = $note")
+
+        //Вывод всех комментариев к заметке
+        var noteComments = serviceNote.getComments(newNoteId)
+        if (!noteComments.isNullOrEmpty()) {
+            val allComments = StringBuilder()
+            allComments.append("Все комментарии к заметке: \n")
+            for (comment in noteComments) {
+                allComments.append("${comment.message} \n")
+            }
+
+            println(allComments.toString())
+        }
+        //Вывод всех комментариев к заметке с несущ ID
+        noteComments = serviceNote.getComments(324234234324234234)
+        println("comments for fake Note ID: $noteComments")
+
+
+        //редактирование заметки
+        var editNoteResult = serviceNote.edit(newNoteId0, "changed title", "", -1, -1, "", "")
+        println("result edit note: $editNoteResult")
+        //редактирование заметки с незап парамтерами
+        editNoteResult = serviceNote.edit(newNoteId0, "", "", -1, -1, "", "")
+        println("result edit note: $editNoteResult")
+        //редактирование заметки с несущ ID
+        editNoteResult = serviceNote.edit(21314324234234, "changed 1title", "", -1, -1, "", "")
+        println("result edit note with fake ID: $editNoteResult")
+
+        //Редактирование комментария
+        var editCommentResult = serviceNote.editComment(newComment, "text changed comment")
+        println("result edit comment: $editCommentResult")
+        //Редактирование комментария с незап. парам.
+        editCommentResult = serviceNote.editComment(newComment, "")
+        println("result edit comment: $editCommentResult")
+        //Редактирование комментария с несущ ID
+        editCommentResult = serviceNote.editComment(234324234324, "fake test")
+        println("result edit comment with fake ID: $editCommentResult")
+
+        //Удаление заметки
+        var deleteNoteResult = serviceNote.delete(newNoteId)
+        println("attempt to delete Note result =  $deleteNoteResult")
+        //Удаление заметки с несущ ID
+        deleteNoteResult = serviceNote.delete(2131231231231)
+        println("attempt to delete Note with fake ID. result =  $deleteNoteResult")
+        //удаление комментария
+        var deleteCommentResult = serviceNote.deleteComment(newComment)
+        println("delete comment. result =  $deleteCommentResult")
+        //удаление комментария с несуш ID
+        deleteCommentResult = serviceNote.deleteComment(454545454545454)
+        println("attempt to delete comment with fake ID. result =  $deleteCommentResult")
+
+        //Восстановление комментария
+        var restoreCommentResult = serviceNote.restoreComment(newComment)
+        println("recover comment. result =  $restoreCommentResult")
+        //Восстановление комментария с несущ ID
+        restoreCommentResult = serviceNote.restoreComment(445454545454545454)
+        println("attempt to recover comment with fake ID. result =  $restoreCommentResult")
+
+        */
 }
